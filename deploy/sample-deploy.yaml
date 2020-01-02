@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-sample
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-sample
+  template:
+    metadata:
+      labels:
+        app: go-sample
+      annotations:
+        ad.datadoghq.com/guestbook.check_names: '["go_expvar"]'
+        ad.datadoghq.com/guestbook.init_configs: '[{}]'
+        ad.datadoghq.com/guestbook.instances: '[{"expvar_url": "http://%%host%%:%%port_0%%"}]'
+    spec:
+      containers:
+      - name: go-sample
+        image: coltonmccurdy/go-sample:2.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+        env:
+        - name: DD_AGENT_HOST
+          value: minikube
+        - name: DD_AGENT_PORT
+          value: "8126"
