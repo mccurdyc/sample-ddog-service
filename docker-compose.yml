@@ -5,19 +5,25 @@ services:
     ports:
      - "8080:8080"
     environment:
-    - DD_AGENT_HOST=datadog
-    - DD_AGENT_PORT=8126
+      - DD_AGENT_HOST=datadog
+      - DD_AGENT_PORT=8126
+    volumes:
+      - ./log.log:/var/log.log
   # agent section
   datadog:
     image: datadog/agent:7
     links:
      - web # ensures that the web app can send metrics
     environment:
-     - DD_API_KEY=API_KEY
-     - DD_APP_KEY=APP_KEY
+     - DD_API_KEY= {{ API_KEY }}
+     - DD_APP_KEY= {{ APP_KEY }}
      - DD_APM_NON_LOCAL_TRAFFIC=true
      - DD_APM_ENABLED=true
+     - DD_LOGS_ENABLED=true
+     - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
     volumes:
+     - ./conf.d:/etc/datadog-agent/conf.d # https://docs.datadoghq.com/agent/guide/agent-configuration-files/?tab=agentv6v7#agent-configuration-directory
+     - ./log.log:/var/log.log
      - /var/run/docker.sock:/var/run/docker.sock:ro
      - /proc/:/host/proc/:ro
      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
